@@ -7,7 +7,7 @@ load_dotenv()
 
 instagram_api = os.getenv("INSTAGRAM_API")
 
-def insta_downloader(link):
+def downloader(link):
     url = "https://instagram-reels-downloader-api.p.rapidapi.com/download"
 
     querystring = {"url": link}
@@ -18,22 +18,26 @@ def insta_downloader(link):
     }
 
     response = requests.get(url, headers=headers, params=querystring)
-    result = json.loads(response)
+    result = json.loads(response.text)
 
-    dict = {}
+    
+    media_list = []
 
     if "error" in result:
         return "error"
     else:
-        if result["Type"] == "Post-Image":
-            dict["type"] = "image"
-            dict["media"] = result["media"]
-            return dict
-        elif result["Type"] == "Post-Video":
-            dict["type"] = "video"
-            dict["media"] = result["media"]
-            return dict
-        elif result["Type"] == "Carousel":
-            dict["type"] = "carousel"
-            dict["media"] = result["media"]
-            return dict
+        for media in result["data"]["medias"]:
+            if media["type"] != "audio":
+                media_list.append(
+                    {
+                        "type": media["type"],
+                        "media": media["url"]
+                    }
+                )
+                
+                
+
+    return media_list
+        
+
+

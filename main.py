@@ -1,6 +1,7 @@
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from dotenv import load_dotenv
+from handlers import setup_handle_router
 import asyncio
 import requests
 import os
@@ -18,6 +19,8 @@ async def on_start_up(dispatcher: Dispatcher):
     
 
 async def main():
+    handler_router = setup_handle_router()
+    dp.include_router(handler_router)
     dp.startup.register(on_start_up)
     await dp.start_polling(bot)
 
