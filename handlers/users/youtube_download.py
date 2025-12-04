@@ -4,7 +4,7 @@ from utils.youtube_service import extract_video_id, downloader
 
 router = Router()
 
-@router.message(F.text)
+@router.message(F.text.startswith("https://you"))
 async def youtube_download(msg: Message):
     video_url = msg.text
     await msg.answer("⌛️")

@@ -22,6 +22,7 @@ def downloader(link):
 
     
     media_list = []
+    audio_list = []
 
     if "error" in result:
         return "error"
@@ -34,10 +35,19 @@ def downloader(link):
                         "media": media["url"]
                     }
                 )
+            elif media["type"] == "audio":
+                audio_list.append(
+                    {
+                        "type": media["type"],
+                        "audio": media["url"]
+                    }
+                )
                 
                 
 
-    return media_list
+    return media_list, audio_list
+
+# print(downloader("https://www.instagram.com/reel/DQjq5QrCAlI/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA=="))
         
 
 
