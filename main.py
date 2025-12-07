@@ -24,5 +24,8 @@ async def main():
     dp.startup.register(on_start_up)
     await dp.start_polling(bot)
 
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
+
 if __name__ == '__main__':
     asyncio.run(main())

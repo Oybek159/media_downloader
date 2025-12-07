@@ -5,14 +5,21 @@ from keyboards.inline_keyboards import get_music
 
 router = Router()
 
-data = ()
+user_instagram_data = {}
+instagram_link = {}
 
 @router.message(F.text.startswith(("https://www.instagram.com/", "https://instagram.com")))
 async def insta_downloader(msg: Message):
     await msg.answer("⌛️")
-    global data
-    data = downloader(link=msg.text)
-    # await msg.answer(str(data))
+    data = downloader(link="https://www.instagram.com/reel/DRuO10_gpC1/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==")
+
+
+    # print(data)
+    # print("--------------------------------------")
+
+    user_id = msg.from_user.id
+    # instagram_link["link"] = msg.text
+
     
     for type in data:
         if type == "error":
@@ -21,15 +28,14 @@ async def insta_downloader(msg: Message):
             await msg.answer_photo(photo=type[0]["media"])
         elif type[0]["type"] == "video":
             await msg.answer_video(video=type[0]["media"], reply_markup=get_music())
+            user_instagram_data[user_id] = type[0]["media"]
+
+    # print(data)
+    
+    
 
     
     
     # print(data)
 
-@router.callback_query(F.data=="music")
-async def get_video_func(call: CallbackQuery):
-    for type in data:
-        if type[0]["type"] == "audio":
-            await call.message.answer_audio(audio=type[0]["audio"])
-        else:
-            await call.message.answer("Music not found")
+
