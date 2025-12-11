@@ -11,7 +11,7 @@ instagram_link = {}
 @router.message(F.text.startswith(("https://www.instagram.com/", "https://instagram.com")))
 async def insta_downloader(msg: Message):
     await msg.answer("⌛️")
-    data = downloader(link="https://www.instagram.com/reel/DRuO10_gpC1/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==")
+    data = downloader(link=msg.text)
 
 
     # print(data)
