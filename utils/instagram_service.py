@@ -1,79 +1,91 @@
-import requests
 import json
-import os
-from dotenv import load_dotenv
 
-load_dotenv()
-
-instagram_api = os.getenv("INSTAGRAM_API")
-second_instagram_api = os.getenv("SECOND_INSTAGRAM_API")
-
-api_keys = [instagram_api, second_instagram_api]
+import yt_dlp
 
 
-def downloader(link):
-    media_list = []
-    audio_list = []
+# instagram_api = os.getenv("INSTAGRAM_API")
+# second_instagram_api = os.getenv("SECOND_INSTAGRAM_API")
+#
+# api_keys = [instagram_api, second_instagram_api]
+#
+#
+# def downloader(link):
+#     media_list = []
+#     audio_list = []
+#
+#     # API request code (commented out for testing)
+#     url = "https://instagram-reels-downloader-api.p.rapidapi.com/download"
+#     querystring = {"url": link}
+#     for api_key in api_keys:
+#         headers = {
+#             "x-rapidapi-key": api_key,
+#             "x-rapidapi-host": "instagram-reels-downloader-api.p.rapidapi.com"
+#         }
+#         response = requests.get(url, headers=headers, params=querystring)
+#         remaining_limit = int(response.headers.get("x-ratelimit-requests-remaining", 0))
+#         print(remaining_limit)
+#         if remaining_limit == 0:
+#             print("Switched api key...")
+#             continue
+#         result = json.loads(response.text)
+#         print(result)
+#         print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+#         if "error" in result:
+#             return "error"
+#         else:
+#             for media in result.get("data", {}).get("medias", []):
+#                 if media["type"] != "audio":
+#                     media_list.append(
+#                         {
+#                             "type": media["type"],
+#                             "media": media["url"]
+#                         }
+#                     )
+#                 elif media["type"] == "audio":
+#                     audio_list.append(
+#                         {
+#                             "type": media["type"],
+#                             "audio": media["url"]
+#                         }
+#                     )
+#             break
+#
+#     # Load data from local JSON file for testing
+#     # json_path = os.path.join(os.path.dirname(__file__), "instagram.json")
+#     # with open(json_path, "r") as file:
+#     #     result = json.load(file)
+#
+#     # if "error" in result:
+#     #     return "error"
+#     # else:
+#     #     for media in result.get("data", {}).get("medias", []):
+#     #         if media["type"] != "audio":
+#     #             media_list.append(
+#     #                 {
+#     #                     "type": media["type"],
+#     #                     "media": media["url"]
+#     #                 }
+#     #             )
+#     #         elif media["type"] == "audio":
+#     #             audio_list.append(
+#     #                 {
+#     #                     "type": media["type"],
+#     #                     "audio": media["url"]
+#     #                 }
+#     #             )
+#
+#     return media_list, audio_list
 
-    # API request code (commented out for testing)
-    url = "https://instagram-reels-downloader-api.p.rapidapi.com/download"
-    querystring = {"url": link}
-    for api_key in api_keys:
-        headers = {
-            "x-rapidapi-key": api_key,
-            "x-rapidapi-host": "instagram-reels-downloader-api.p.rapidapi.com"
+def downloader(user_dict: dict, output_path="media/insta_videos"):
+    # ℹ️ See help(yt_dlp.YoutubeDL) for a list of available options and public functions
+    for user_id, video_url in user_dict.items():
+        ydl_opts = {
+            'format': 'best',
+            "outtmpl": f"{output_path}/{user_id}_video.%(ext)s"
         }
-        response = requests.get(url, headers=headers, params=querystring)
-        remaining_limit = int(response.headers.get("x-ratelimit-requests-remaining", 0))
-        print(remaining_limit)
-        if remaining_limit == 0:
-            print("Switched api key...")
-            continue
-        result = json.loads(response.text)
-        print(result)
-        print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-        if "error" in result:
-            return "error"
-        else:
-            for media in result.get("data", {}).get("medias", []):
-                if media["type"] != "audio":
-                    media_list.append(
-                        {
-                            "type": media["type"],
-                            "media": media["url"]
-                        }
-                    )
-                elif media["type"] == "audio":
-                    audio_list.append(
-                        {
-                            "type": media["type"],
-                            "audio": media["url"]
-                        }
-                    )
-            break
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(video_url, download=False)
+            ydl.download([video_url])
 
-    # Load data from local JSON file for testing
-    # json_path = os.path.join(os.path.dirname(__file__), "instagram.json")
-    # with open(json_path, "r") as file:
-    #     result = json.load(file)
-
-    # if "error" in result:
-    #     return "error"
-    # else:
-    #     for media in result.get("data", {}).get("medias", []):
-    #         if media["type"] != "audio":
-    #             media_list.append(
-    #                 {
-    #                     "type": media["type"],
-    #                     "media": media["url"]
-    #                 }
-    #             )
-    #         elif media["type"] == "audio":
-    #             audio_list.append(
-    #                 {
-    #                     "type": media["type"],
-    #                     "audio": media["url"]
-    #                 }
-    #             )
-
-    return media_list, audio_list
+            # ℹ️ ydl.sanitize_info makes the info json-serializable
+            print(json.dumps(ydl.sanitize_info(info)))
